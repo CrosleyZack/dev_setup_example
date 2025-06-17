@@ -1,0 +1,57 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/go
+{
+	"name": "Go",
+	"image": "mcr.microsoft.com/devcontainers/go:1-1.23-bookworm",
+
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	// "features": {},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "",
+
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			"settings": {
+				// use podman. Can set in settings.json to apply to every project
+				"dev.containers.dockerPath": "podman",
+				"dev.containers.dockerSocketPath": "unix:///run/user/1000/podman/podman.sock",
+				"dev.containers.dockerComposePath": "podman compose",
+				"dev.containers.forwardWSLServices": false
+			},
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"golang.go"
+			]
+		}
+	},
+
+	// runArgs are passed to the container runtime when starting the container.
+	"runArgs": [
+		"--privileged=true"
+		// Does not resolve the `chmod: ... Operation not permitted` error
+		// "--network=host",
+		// "--userns=keep-id:uid=1000,gid=1000",
+	],
+
+	// set the env variables in the dev container	
+	"containerEnv": {
+		"TESTCONTAINERS_RYUK_DISABLED": "true",
+		// "DOCKER_HOST": "unix:///run/user/1000/podman/podman.sock",
+		// "TESTCONTAINERS_CHECKS_DISABLE": "true"
+	},
+
+	// mount podman sock so it can be used in the dev container
+	"mounts": [
+		// resolves `docker_host.go:91: test panicked: check host "unix:///run/user/1000/podman/podman.sock": docker info: Cannot connect to the Docker daemon at unix:///run/user/1000/podman/podman.sock. Is the docker daemon running?` from ProviderType.GetProvider
+		"type=bind,source=/run/user/1000/podman/podman.sock,target=/run/user/1000/podman/podman.sock"
+	],
+
+	// Does not resolve the `chmod: ... Operation not permitted` error
+	// "remoteUser": "root"
+}
